@@ -72,3 +72,80 @@ def parse_kgat_args():
     return args
 
 
+
+def parse_kgat_args2():
+    parser = argparse.ArgumentParser(description="Run KGAT.")
+
+    parser.add_argument('--seed', type=int, default=555,
+                        help='Random seed.')
+
+    parser.add_argument('--data_name', nargs='?', default='预处理后数据',
+                        help='Choose a dataset from {yelp2018, last-fm, amazon-book}')
+    parser.add_argument('--data_dir', nargs='?', default='/home/knowledge303/Documents/zjm/data/final_data/final_data/',
+                        help='Input data path.')
+
+    parser.add_argument('--use_pretrain', type=int, default=0,
+                        help='0: No pretrain, 1: Pretrain with the learned embeddings, 2: Pretrain with stored model.')
+    parser.add_argument('--pretrain_embedding_dir', nargs='?', default='datasets/pretrain/',
+                        help='Path of learned embeddings.')
+    parser.add_argument('--pretrain_model_path', nargs='?', default='trained_model/model.pth',
+                        help='Path of stored model.')
+
+    parser.add_argument('--cf_batch_size', type=int, default=1024,
+                        help='CF batch size.')
+    parser.add_argument('--kg_batch_size', type=int, default=2048,
+                        help='KG batch size.')
+    parser.add_argument('--test_batch_size', type=int, default=1024,
+                        help='Test batch size (the user number to test every batch). origin:10000')
+
+    parser.add_argument('--embed_dim', type=int, default=8,
+                        help='User / entity Embedding size.')
+    parser.add_argument('--relation_dim', type=int, default=8,
+                        help='Relation Embedding size.')
+    # 模型解释 https://zhuanlan.zhihu.com/p/422481329
+    # 对称/无规则的拉普拉斯矩阵
+    parser.add_argument('--laplacian_type', type=str, default='random-walk',
+                        help='Specify the type of the adjacency (laplacian) matrix from {symmetric, random-walk}.')
+    # 聚合类型
+    parser.add_argument('--aggregation_type', type=str, default='graphsage',
+                        help='Specify the type of the aggregation layer from {gcn, graphsage, bi-interaction}.')
+    # 卷积层维度
+    parser.add_argument('--conv_dim_list', nargs='?', default='[64, 32, 16]',
+                        help='Output sizes of every aggregation layer.')
+    parser.add_argument('--mess_dropout', nargs='?', default='[0.1, 0.1, 0.1]',
+                        help='Dropout probability w.r.t. message dropout for each deep layer. 0: no dropout.')
+
+    parser.add_argument('--kg_l2loss_lambda', type=float, default=1e-5,
+                        help='Lambda when calculating KG l2 loss.')
+    parser.add_argument('--cf_l2loss_lambda', type=float, default=1e-5,
+                        help='Lambda when calculating CF l2 loss.')
+
+    parser.add_argument('--lr', type=float, default=0.0001,
+                        help='Learning rate.')
+    parser.add_argument('--n_epoch', type=int, default=70,
+                        help='Number of epoch.')
+    parser.add_argument('--stopping_steps', type=int, default=10,
+                        help='Number of epoch for early stopping')
+
+    parser.add_argument('--cf_print_every', type=int, default=100,
+                        help='Iter interval of printing CF loss.')
+    parser.add_argument('--kg_print_every', type=int, default=100,
+                        help='Iter interval of printing KG loss.')
+    parser.add_argument('--evaluate_every', type=int, default=1,
+                        help='Epoch interval of evaluating CF.')
+
+    parser.add_argument('--Ks', nargs='?', default='[1, 2, 5, 10, 20, 50, 100]',
+                        help='Calculate metric@K when evaluating.')
+
+    parser.add_argument('--save_model', type=bool, default=True,
+                        help='save model or not')
+
+    args = parser.parse_args()
+
+    save_dir = 'trained_model/KGAT/{}/embed-dim{}_relation-dim{}_{}_{}_{}_lr{}_pretrain{}/'.format(
+        args.data_name, args.embed_dim, args.relation_dim, args.laplacian_type, args.aggregation_type,
+        '-'.join([str(i) for i in eval(args.conv_dim_list)]), args.lr, args.use_pretrain)
+    args.save_dir = save_dir
+
+    return args
+

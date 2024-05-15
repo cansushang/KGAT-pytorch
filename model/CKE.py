@@ -146,10 +146,28 @@ class CKE(nn.Module):
         return cf_score
 
 
+    def binary_classifier(self, user_ids, item_ids):
+        """
+        author: lord_can
+        user_ids:  (n_users)
+        item_ids:  (n_items)
+        """
+        user_embed = self.user_embed(user_ids)  # (n_users, embed_dim)
+
+        item_embed = self.item_embed(item_ids)  # (n_items, embed_dim)
+        item_kg_embed = self.entity_embed(item_ids)  # (n_items, embed_dim)
+        item_cf_embed = item_embed + item_kg_embed  # (n_items, embed_dim)
+
+        cf_score = torch.matmul(user_embed, item_cf_embed.transpose(0, 1))  # (n_users, n_items)
+        torch.sum(cf_score, dim=1)
+        return cf_score
+
+
     def forward(self, *input, is_train):
         if is_train:
             return self.calc_loss(*input)
         else:
             return self.calc_score(*input)
+            # return self.binary_classifier(*input)
 
 

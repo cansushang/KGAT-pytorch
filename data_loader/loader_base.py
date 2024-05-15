@@ -19,7 +19,9 @@ class DataLoaderBase(object):
         self.data_dir = os.path.join(args.data_dir, args.data_name)
         self.train_file = os.path.join(self.data_dir, 'train.txt')
         self.test_file = os.path.join(self.data_dir, 'test.txt')
-        self.kg_file = os.path.join(self.data_dir, "kg_final.txt")
+        self.kg_file = os.path.join(self.data_dir, "kg_final（七类关系+无顺承关系）.txt")
+        # lord_can
+        # self.test_pos_file_for_binary_eval = os.path.join(self.data_dir, "test_pos_file_for_binary_eval.txt")
 
         self.cf_train_data, self.train_user_dict = self.load_cf(self.train_file)
         self.cf_test_data, self.test_user_dict = self.load_cf(self.test_file)
@@ -61,9 +63,11 @@ class DataLoaderBase(object):
 
 
     def load_kg(self, filename):
-        kg_data = pd.read_csv(filename, sep=' ', names=['h', 'r', 't'], engine='python')
+        # textile的kg数据是制表符间隔，原数据是空格符间隔
+        kg_data = pd.read_csv(filename, sep='\t', names=['h', 'r', 't'], engine='python')
         kg_data = kg_data.drop_duplicates()
         return kg_data
+
 
 
     def sample_pos_items_for_u(self, user_dict, user_id, n_sample_pos_items):

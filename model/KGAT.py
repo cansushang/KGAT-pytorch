@@ -243,6 +243,18 @@ class KGAT(nn.Module):
         return cf_score
 
 
+    def normalize_score(self, user_ids, item_ids):
+        """
+        author: lord_can
+        user_ids:  (n_users)
+        item_ids:  (n_items)
+        """
+        cf_score = self.calc_score(self, user_ids, item_ids)
+        scores_normalized = torch.sigmoid(cf_score)
+        scores_normalized[scores_normalized >= 0.5] = 1
+        scores_normalized[scores_normalized < 0.5] = 0
+        return scores_normalized
+
     def forward(self, *input, mode):
         if mode == 'train_cf':
             return self.calc_cf_loss(*input)
@@ -252,5 +264,7 @@ class KGAT(nn.Module):
             return self.update_attention(*input)
         if mode == 'predict':
             return self.calc_score(*input)
+        if mode == 'normalize score':
+            return self.normalize_score(*input)
 
 
